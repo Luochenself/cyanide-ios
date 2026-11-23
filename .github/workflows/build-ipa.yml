@@ -1,0 +1,62 @@
+name: Build IPA
+
+on:
+  workflow_dispatch:          # 网页上手动点 Run
+  push:
+    tags:
+      - "v*"                  # 推送 v1.0.0 这类 tag 时打包
+
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode.app
+
+      # Cyanide XPF 编 iOS dylib 需要 ldid（指南外的工程依赖）
+      - name: Ensure ldid
+        run: |
+          set -e
+          if command -v ldid >/dev/null 2>&1; then
+            command -v ldid
+            exit 0
+          fi
+          ARCH="$(uname -m)"
+          case "$ARCH" in
+            arm64) URL=https://github.com/ProcursusTeam/ldid/releases/download/v2.1.5-procursus7/ldid_macosx_arm64 ;;
+            *)     URL=https://github.com/ProcursusTeam/ldid/releases/download/v2.1.5-procursus7/ldid_macosx_x86_64 ;;
+          esac
+          curl -fsSL -o /tmp/ldid "$URL"
+          chmod +x /tmp/ldid
+          sudo mv /tmp/ldid /usr/local/bin/ldid
+          command -v ldid
+          ldid 2>&1 | head -n 2 || true
+
+      - name: Build archive
+        run: |
+          xcodebuild archive \
+            -project Cyanide.xcodeproj \
+            -scheme Cyanide \
+            -configuration Release \
+            -archivePath $RUNNER_TEMP/Cyanide.xcarchive \
+            -destination "generic/platform=iOS" \
+            CODE_SIGNING_ALLOWED=NO
+
+      # 无签名仅适合特殊安装渠道；正式上架/真机需证书，见下一节
+      - name: Pack Payload IPA
+        run: |
+          APP=$(find "$RUNNER_TEMP/Cyanide.xcarchive/Products/Applications" -name "*.app" | head -n 1)
+          mkdir -p Payload
+          cp -R "$APP" Payload/
+          zip -r Cyanide.ipa Payload
+          rm -rf Payload
+          ls -lh Cyanide.ipa
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: Cyanide-ipa
+          path: Cyanide.ipa
