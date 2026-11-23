@@ -6502,6 +6502,7 @@ void settings_register_defaults(void)
         kSettingsSBCHideLabels: @(kSBCDefaultHideLabels),
 
         kSettingsPowercuffEnabled: @NO,
+        @"LPMUnlockEnabled": @NO,
         kSettingsPowercuffLevel:   @"nominal",
 
         kSettingsDSDisableAppLibrary: @NO,
@@ -7636,7 +7637,7 @@ static BOOL livewp_response_is_video_download(NSURLResponse *response)
     UIButton *cancel = [UIButton buttonWithType:UIButtonTypeSystem];
     cancel.translatesAutoresizingMaskIntoConstraints = NO;
     UIButtonConfiguration *config = [UIButtonConfiguration plainButtonConfiguration];
-    config.title = @"Cancel";
+    config.title = @"取消";
     config.baseForegroundColor = UIColor.systemRedColor;
     config.cornerStyle = UIButtonConfigurationCornerStyleCapsule;
     config.contentInsets = NSDirectionalEdgeInsetsMake(10.0, 14.0, 10.0, 14.0);
@@ -8760,7 +8761,7 @@ didChangeAuthorizationStatus:(CLAuthorizationStatus)status
     UIAlertController *ac = [UIAlertController alertControllerWithTitle:@"Export Failed"
                                                                 message:error.localizedDescription ?: @"Could not write the plist."
                                                          preferredStyle:UIAlertControllerStyleAlert];
-    [ac addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]];
+    [ac addAction:[UIAlertAction actionWithTitle:@"好" style:UIAlertActionStyleDefault handler:nil]];
     [self presentViewController:ac animated:YES completion:nil];
 }
 
@@ -8817,7 +8818,7 @@ didChangeAuthorizationStatus:(CLAuthorizationStatus)status
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    self.title = self.detailMode ? (self.bundleTitle ?: @"Settings") : @"Settings";
+    self.title = self.detailMode ? (self.bundleTitle ?: @"设置") : @"设置";
     self.tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAlways;
     self.tableView.rowHeight                      = UITableViewAutomaticDimension;
     self.tableView.estimatedRowHeight             = 44.0;
@@ -8882,7 +8883,7 @@ didChangeAuthorizationStatus:(CLAuthorizationStatus)status
     NSUInteger installerIdx = NSNotFound;
     for (NSUInteger i = 0; i < tab.viewControllers.count; i++) {
         UIViewController *vc = tab.viewControllers[i];
-        if ([vc.tabBarItem.title isEqualToString:@"Packages"]) {
+        if ([vc.tabBarItem.title isEqualToString:@"插件包"]) {
             installerIdx = i;
             break;
         }
@@ -8970,7 +8971,7 @@ didChangeAuthorizationStatus:(CLAuthorizationStatus)status
             [weakSelf.tableView reloadData];
         }]];
     }
-    [alert addAction:[UIAlertAction actionWithTitle:alreadyNominal ? @"OK" : @"Keep Current"
+    [alert addAction:[UIAlertAction actionWithTitle:alreadyNominal ? @"好" : @"Keep Current"
                                              style:UIAlertActionStyleCancel
                                            handler:^(UIAlertAction *_) {
         [d setBool:YES forKey:kSettingsPowercuffNominalNoticeShown];
@@ -9010,7 +9011,7 @@ didChangeAuthorizationStatus:(CLAuthorizationStatus)status
     [icon setContentCompressionResistancePriority:UILayoutPriorityRequired forAxis:UILayoutConstraintAxisHorizontal];
 
     UILabel *label = [[UILabel alloc] init];
-    label.text = @"Cyanide is a limited tweak environment — tweaks apply this session only and reset on reboot. Live tweaks like StatBar and Axon Lite stop if you force-quit Cyanide from the App Switcher. A progress log opens automatically while changes are applying; tap Hide to dismiss.";
+    label.text = @"Cyanide 是有限插件环境——插件仅本会话生效，重启后失效。像状态栏、Axon Lite 这类实时插件，若从多任务强制关掉 Cyanide 也会停止。应用变更时会自动打开进度日志，点「隐藏」可关闭。";
     label.textColor = UIColor.labelColor;
     label.font = [UIFont systemFontOfSize:13 weight:UIFontWeightRegular];
     label.numberOfLines = 0;
@@ -9404,7 +9405,7 @@ didChangeAuthorizationStatus:(CLAuthorizationStatus)status
 
     UIButton *reset = [UIButton buttonWithType:UIButtonTypeSystem];
     reset.translatesAutoresizingMaskIntoConstraints = NO;
-    [reset setTitle:@"Reset" forState:UIControlStateNormal];
+    [reset setTitle:@"重置" forState:UIControlStateNormal];
     reset.titleLabel.font = [UIFont systemFontOfSize:12.5 weight:UIFontWeightSemibold];
     reset.enabled = supported;
     reset.contentEdgeInsets = UIEdgeInsetsMake(5, 10, 5, 10);
@@ -9468,10 +9469,10 @@ didChangeAuthorizationStatus:(CLAuthorizationStatus)status
 - (NSArray<NSDictionary *> *)launchRows
 {
     return @[
-        @{ @"key": kSettingsAutoRunKexploit,    @"title": @"Auto-run kexploit on launch" },
-        @{ @"key": kSettingsRunSandboxEscape,   @"title": @"Sandbox escape (escape_sbx_demo2)" },
-        @{ @"key": kSettingsKeepAlive,          @"title": @"Keep app alive in background",
-           @"subtitle": @"Required for app-driven live tweaks to persist while minimized, including StatBar receiving fresh live data." },
+        @{ @"key": kSettingsAutoRunKexploit,    @"title": @"启动时自动运行 kexploit" },
+        @{ @"key": kSettingsRunSandboxEscape,   @"title": @"沙盒逃逸 (escape_sbx_demo2)" },
+        @{ @"key": kSettingsKeepAlive,          @"title": @"后台保持运行",
+           @"subtitle": @"后台保持运行时，StatBar 等实时插件才能持续刷新数据。" },
     ];
 }
 
@@ -9482,26 +9483,30 @@ didChangeAuthorizationStatus:(CLAuthorizationStatus)status
 - (NSArray<NSDictionary *> *)sbcRows
 {
     return @[
-        @{ @"kind": @"stepper", @"key": kSettingsSBCDockIcons,  @"title": @"Dock icons", @"min": @4, @"max": @7, @"default": @(kSBCDefaultDockIcons) },
-        @{ @"kind": @"stepper", @"key": kSettingsSBCCols,       @"title": @"Home columns", @"min": @3, @"max": @7, @"default": @(kSBCDefaultCols) },
-        @{ @"kind": @"stepper", @"key": kSettingsSBCRows,       @"title": @"Home rows", @"min": @4, @"max": @8, @"default": @(kSBCDefaultRows) },
-        @{ @"kind": @"toggle",  @"key": kSettingsSBCHideLabels, @"title": @"Hide icon labels" },
-        @{ @"kind": @"button",  @"title": @"Reset to Defaults" },
+        @{ @"kind": @"stepper", @"key": kSettingsSBCDockIcons,  @"title": @"Dock 图标数", @"min": @4, @"max": @7, @"default": @(kSBCDefaultDockIcons) },
+        @{ @"kind": @"stepper", @"key": kSettingsSBCCols,       @"title": @"主屏列数", @"min": @3, @"max": @7, @"default": @(kSBCDefaultCols) },
+        @{ @"kind": @"stepper", @"key": kSettingsSBCRows,       @"title": @"主屏行数", @"min": @4, @"max": @8, @"default": @(kSBCDefaultRows) },
+        @{ @"kind": @"toggle",  @"key": kSettingsSBCHideLabels, @"title": @"隐藏图标名称" },
+        @{ @"kind": @"button",  @"title": @"恢复默认" },
     ];
 }
 
 - (NSArray<NSDictionary *> *)powercuffRows
 {
     return @[
-        @{ @"kind": @"segmented", @"key": kSettingsPowercuffLevel,   @"title": @"Level" },
+        @{ @"kind": @"toggle",
+           @"key": @"LPMUnlockEnabled",
+           @"title": @"低电量解锁刷新率",
+           @"subtitle": @"省电模式下仍可冲到最高刷新率（最高 120Hz）" },
+        @{ @"kind": @"segmented", @"key": kSettingsPowercuffLevel,   @"title": @"等级" },
     ];
 }
 
 - (NSArray<NSDictionary *> *)otaRows
 {
     return @[
-        @{ @"kind": @"button", @"title": @"Disable OTA Updates" },
-        @{ @"kind": @"button", @"title": @"Enable OTA Updates" },
+        @{ @"kind": @"button", @"title": @"禁用系统更新" },
+        @{ @"kind": @"button", @"title": @"恢复系统更新" },
     ];
 }
 
@@ -10173,10 +10178,10 @@ didChangeAuthorizationStatus:(CLAuthorizationStatus)status
     NSUserDefaults *d = NSUserDefaults.standardUserDefaults;
     NSMutableArray *out = [NSMutableArray array];
     if (section == SectionSBC) {
-        [out addObject:@{@"title": @"Dock icons",       @"value": [@([d integerForKey:kSettingsSBCDockIcons])  stringValue]}];
-        [out addObject:@{@"title": @"Home columns",     @"value": [@([d integerForKey:kSettingsSBCCols])        stringValue]}];
-        [out addObject:@{@"title": @"Home rows",        @"value": [@([d integerForKey:kSettingsSBCRows])        stringValue]}];
-        [out addObject:@{@"title": @"Hide icon labels", @"value": [d boolForKey:kSettingsSBCHideLabels] ? @"On" : @"Off"}];
+        [out addObject:@{@"title": @"Dock 图标数",       @"value": [@([d integerForKey:kSettingsSBCDockIcons])  stringValue]}];
+        [out addObject:@{@"title": @"主屏列数",     @"value": [@([d integerForKey:kSettingsSBCCols])        stringValue]}];
+        [out addObject:@{@"title": @"主屏行数",        @"value": [@([d integerForKey:kSettingsSBCRows])        stringValue]}];
+        [out addObject:@{@"title": @"隐藏图标名称", @"value": [d boolForKey:kSettingsSBCHideLabels] ? @"On" : @"Off"}];
     } else if (section == SectionDragCoefficient) {
         NSInteger value = [d integerForKey:kSettingsDSDragCoefficientValue];
         [out addObject:@{@"title": @"Coefficient",
@@ -10217,7 +10222,7 @@ didChangeAuthorizationStatus:(CLAuthorizationStatus)status
                          @"value": settings_tweak_is_applied(kSettingsAppSwitcherGridEnabled) ? @"Grid" : @"Stock"}];
     } else if (section == SectionPowercuff) {
         NSString *lvl = [d stringForKey:kSettingsPowercuffLevel] ?: @"nominal";
-        [out addObject:@{@"title": @"Level", @"value": lvl}];
+        [out addObject:@{@"title": @"等级", @"value": lvl}];
     } else if (section == SectionNanoRegistry) {
         [out addObject:@{@"title": @"watchOS limit",      @"value": [@([d integerForKey:kSettingsNanoMaxPairing])       stringValue]}];
         [out addObject:@{@"title": @"Setup floor",        @"value": [@([d integerForKey:kSettingsNanoMinPairing])       stringValue]}];
@@ -10286,34 +10291,34 @@ didChangeAuthorizationStatus:(CLAuthorizationStatus)status
 - (NSArray<NSDictionary *> *)allTweakBundleRows
 {
     return @[
-        @{ @"title": @"Launch Options",     @"icon": @"bolt.fill",                          @"color": [UIColor systemRedColor],    @"section": @(SectionLaunch) },
-        @{ @"title": @"SBCustomizer",       @"icon": @"square.grid.3x3.fill",                @"color": [UIColor systemBlueColor],   @"section": @(SectionSBC) },
-        @{ @"title": @"StatBar",            @"icon": @"thermometer.medium",                  @"color": [UIColor systemRedColor],    @"section": @(SectionStatBar) },
-        @{ @"title": @"NSBar",              @"icon": @"network",                             @"color": [UIColor systemGreenColor],  @"section": @(SectionNSBar) },
+        @{ @"title": @"启动选项",     @"icon": @"bolt.fill",                          @"color": [UIColor systemRedColor],    @"section": @(SectionLaunch) },
+        @{ @"title": @"主屏布局",       @"icon": @"square.grid.3x3.fill",                @"color": [UIColor systemBlueColor],   @"section": @(SectionSBC) },
+        @{ @"title": @"状态栏 StatBar",            @"icon": @"thermometer.medium",                  @"color": [UIColor systemRedColor],    @"section": @(SectionStatBar) },
+        @{ @"title": @"网络栏 NSBar",              @"icon": @"network",                             @"color": [UIColor systemGreenColor],  @"section": @(SectionNSBar) },
         @{ @"title": @"NiceBar Lite",       @"icon": @"textformat.size",                     @"color": [UIColor systemCyanColor],   @"section": @(SectionNiceBarLite) },
-        @{ @"title": @"Signal Display",     @"icon": @"antenna.radiowaves.left.and.right",   @"color": [UIColor systemBlueColor],   @"section": @(SectionRSSI), @"experimental": @YES },
-        @{ @"title": @"Axon Lite",          @"icon": @"bell.badge.fill",                     @"color": [UIColor systemRedColor],    @"section": @(SectionAxonLite) },
+        @{ @"title": @"信号显示",     @"icon": @"antenna.radiowaves.left.and.right",   @"color": [UIColor systemBlueColor],   @"section": @(SectionRSSI), @"experimental": @YES },
+        @{ @"title": @"通知 Axon Lite",          @"icon": @"bell.badge.fill",                     @"color": [UIColor systemRedColor],    @"section": @(SectionAxonLite) },
         @{ @"title": @"TypeBanner",         @"icon": @"ellipsis.bubble.fill",                @"color": [UIColor systemTealColor],   @"section": @(SectionTypeBanner), @"experimental": @YES },
-        @{ @"title": @"App Switcher Grid",  @"icon": @"square.grid.2x2.fill",                @"color": [UIColor systemOrangeColor], @"section": @(SectionAppSwitcherGrid), @"experimental": @YES },
-        @{ @"title": @"Cyanide Themer",     @"icon": @"paintpalette.fill",                   @"color": [UIColor systemPinkColor],   @"section": @(SectionThemer) },
+        @{ @"title": @"多任务网格",  @"icon": @"square.grid.2x2.fill",                @"color": [UIColor systemOrangeColor], @"section": @(SectionAppSwitcherGrid), @"experimental": @YES },
+        @{ @"title": @"主题美化",     @"icon": @"paintpalette.fill",                   @"color": [UIColor systemPinkColor],   @"section": @(SectionThemer) },
         @{ @"title": @"SnowBoard Lite",     @"icon": @"square.stack.3d.up.fill",             @"color": [UIColor systemMintColor],   @"section": @(SectionSnowBoardLite) },
-        @{ @"title": @"LiveWP",             @"icon": @"play.rectangle.fill",                 @"color": [UIColor systemPurpleColor], @"section": @(SectionLiveWP) },
+        @{ @"title": @"动态壁纸",             @"icon": @"play.rectangle.fill",                 @"color": [UIColor systemPurpleColor], @"section": @(SectionLiveWP) },
         @{ @"title": @"Gravity Lite",       @"icon": @"arrow.down.circle.fill",              @"color": [UIColor systemGreenColor],  @"section": @(SectionGravityLite) },
-        @{ @"title": @"Location Simulator", @"icon": @"location.fill",                       @"color": [UIColor systemGreenColor],  @"section": @(SectionLocationSim) },
+        @{ @"title": @"定位模拟", @"icon": @"location.fill",                       @"color": [UIColor systemGreenColor],  @"section": @(SectionLocationSim) },
         @{ @"title": @"QuickLoader",        @"icon": @"bolt.fill",                           @"color": [UIColor systemYellowColor], @"section": @(SectionQuickLoader) },
-        @{ @"title": @"RepoTweaks",         @"icon": @"tray.and.arrow.down.fill",            @"color": [UIColor systemBlueColor],   @"section": @(SectionRepoTweaks) },
-        @{ @"title": @"Powercuff",          @"icon": @"bolt.slash.fill",                     @"color": [UIColor systemOrangeColor], @"section": @(SectionPowercuff) },
-        @{ @"title": @"SpringBoard Tweaks", @"icon": @"apps.iphone",                         @"color": [UIColor systemIndigoColor], @"section": @(SectionDarkSwordTweaks) },
-        @{ @"title": @"Drag Coefficient",   @"icon": @"dial.medium.fill",                     @"color": [UIColor systemIndigoColor], @"section": @(SectionDragCoefficient) },
-        @{ @"title": @"Home Layout Extras", @"icon": @"square.dashed.inset.filled",          @"color": [UIColor systemPurpleColor], @"section": @(SectionLayoutExtras) },
+        @{ @"title": @"仓库插件",         @"icon": @"tray.and.arrow.down.fill",            @"color": [UIColor systemBlueColor],   @"section": @(SectionRepoTweaks) },
+        @{ @"title": @"功耗限制 Powercuff",          @"icon": @"bolt.slash.fill",                     @"color": [UIColor systemOrangeColor], @"section": @(SectionPowercuff) },
+        @{ @"title": @"SpringBoard 插件", @"icon": @"apps.iphone",                         @"color": [UIColor systemIndigoColor], @"section": @(SectionDarkSwordTweaks) },
+        @{ @"title": @"拖拽阻尼",   @"icon": @"dial.medium.fill",                     @"color": [UIColor systemIndigoColor], @"section": @(SectionDragCoefficient) },
+        @{ @"title": @"主屏扩展", @"icon": @"square.dashed.inset.filled",          @"color": [UIColor systemPurpleColor], @"section": @(SectionLayoutExtras) },
     ];
 }
 
 - (NSArray<NSDictionary *> *)allSystemBundleRows
 {
     return @[
-        @{ @"title": @"OTA Updates",       @"icon": @"icloud.slash.fill",    @"color": [UIColor systemGrayColor],   @"section": @(SectionOTA) },
-        @{ @"title": @"Watch Pairing",     @"icon": @"applewatch.radiowaves.left.and.right", @"color": [UIColor systemPurpleColor], @"section": @(SectionNanoRegistry) },
+        @{ @"title": @"屏蔽系统更新",       @"icon": @"icloud.slash.fill",    @"color": [UIColor systemGrayColor],   @"section": @(SectionOTA) },
+        @{ @"title": @"Watch 配对",     @"icon": @"applewatch.radiowaves.left.and.right", @"color": [UIColor systemPurpleColor], @"section": @(SectionNanoRegistry) },
     ];
 }
 
@@ -10385,14 +10390,14 @@ didChangeAuthorizationStatus:(CLAuthorizationStatus)status
 {
     if (self.detailMode) return nil;
     switch ((RootSection)section) {
-        case RootSectionChangelog:      return settings_changelog_entries().count > 0 ? @"What's New" : nil;
-        case RootSectionActions:        return @"Quick Actions";
-        case RootSectionTweakBundles:   return self.tweakBundleRows.count   > 0 ? @"Tweaks" : nil;
-        case RootSectionSystemBundles:  return self.systemBundleRows.count  > 0 ? @"System" : nil;
-        case RootSectionAppIcon:        return @"App Icon";
-        case RootSectionDocs:           return @"Docs";
-        case RootSectionAbout:          return @"About";
-        case RootSectionExperimental:   return @"Experimental";
+        case RootSectionChangelog:      return settings_changelog_entries().count > 0 ? @"更新内容" : nil;
+        case RootSectionActions:        return @"快捷操作";
+        case RootSectionTweakBundles:   return self.tweakBundleRows.count   > 0 ? @"插件" : nil;
+        case RootSectionSystemBundles:  return self.systemBundleRows.count  > 0 ? @"系统" : nil;
+        case RootSectionAppIcon:        return @"应用图标";
+        case RootSectionDocs:           return @"文档";
+        case RootSectionAbout:          return @"关于";
+        case RootSectionExperimental:   return @"实验功能";
         default:                        return nil;
     }
 }
@@ -10401,11 +10406,7 @@ didChangeAuthorizationStatus:(CLAuthorizationStatus)status
 {
     if (!self.detailMode) {
         if ((RootSection)section == RootSectionExperimental) {
-            return @"⚠️ These tweaks are unfinished and may not work at all "
-                   @"yet. Installing them only adds risk — SpringBoard "
-                   @"crashes, dropped events, layout glitches, battery "
-                   @"drain — with no guaranteed feature in return. Leave "
-                   @"off unless you're a developer actively testing.";
+            return @"⚠️ 这些插件尚未完成，可能完全不可用。安装只会增加风险（SpringBoard 崩溃、事件丢失、布局异常、耗电），没有保证功能。非开发测试请保持关闭。";
         }
         if ((RootSection)section == RootSectionWarning) {
             NSString *version = settings_app_version_string();
@@ -10877,9 +10878,9 @@ static NSString * const kTelegramLogoSVG =
     cell.imageView.image = [SettingsViewController iconBadgeWithSymbol:@"book.closed.fill" color:UIColor.systemPurpleColor size:29.0];
     cell.textLabel.font = [UIFont systemFontOfSize:17.0];
     cell.textLabel.textColor = UIColor.labelColor;
-    cell.textLabel.text = @"Tweak SDK";
+    cell.textLabel.text = @"插件 SDK";
     cell.detailTextLabel.textColor = UIColor.secondaryLabelColor;
-    cell.detailTextLabel.text = @"How to write Cyanide tweaks";
+    cell.detailTextLabel.text = @"如何编写 Cyanide 插件";
     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     cell.selectionStyle = UITableViewCellSelectionStyleDefault;
     return cell;
@@ -11031,10 +11032,10 @@ static NSString * const kTelegramLogoSVG =
 
     if (row == 1) {
         cell.imageView.image = [SettingsViewController iconBadgeWithSymbol:@"doc.text.magnifyingglass" color:UIColor.systemGrayColor size:29.0];
-        cell.textLabel.text = @"View Log";
+        cell.textLabel.text = @"查看日志";
     } else {
         cell.imageView.image = [SettingsViewController iconBadgeWithSymbol:@"square.and.arrow.up" color:UIColor.systemGreenColor size:29.0];
-        cell.textLabel.text = @"Share Log";
+        cell.textLabel.text = @"分享日志";
     }
     return cell;
 }
@@ -11099,7 +11100,7 @@ static NSString * const kTelegramLogoSVG =
         alertControllerWithTitle:@"Import Theme Folder"
                          message:@"Navigate into your theme folder so you can see the PNG files inside, then tap Open in the top-right corner to import the folder."
                   preferredStyle:UIAlertControllerStyleAlert];
-    [hint addAction:[UIAlertAction actionWithTitle:@"Continue" style:UIAlertActionStyleDefault handler:^(UIAlertAction *a) {
+    [hint addAction:[UIAlertAction actionWithTitle:@"继续" style:UIAlertActionStyleDefault handler:^(UIAlertAction *a) {
         (void)a;
         UIDocumentPickerViewController *picker =
             [[UIDocumentPickerViewController alloc] initForOpeningContentTypes:@[UTTypeFolder, UTTypePropertyList]];
@@ -11107,7 +11108,7 @@ static NSString * const kTelegramLogoSVG =
         picker.allowsMultipleSelection = NO;
         [self presentViewController:picker animated:YES completion:nil];
     }]];
-    [hint addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+    [hint addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil]];
     [self presentViewController:hint animated:YES completion:nil];
 }
 
@@ -11134,7 +11135,7 @@ static NSString * const kTelegramLogoSVG =
         field.autocapitalizationType = UITextAutocapitalizationTypeWords;
         field.clearButtonMode = UITextFieldViewModeWhileEditing;
     }];
-    [namePrompt addAction:[UIAlertAction actionWithTitle:@"Cancel"
+    [namePrompt addAction:[UIAlertAction actionWithTitle:@"取消"
                                                    style:UIAlertActionStyleCancel
                                                  handler:nil]];
     [namePrompt addAction:[UIAlertAction actionWithTitle:@"Choose File"
@@ -11172,7 +11173,7 @@ static NSString * const kTelegramLogoSVG =
         alertControllerWithTitle:@"SnowBoard Lite Format"
                          message:@"Supported inputs: the bundled iOS 6 Theme, a local folder, a local .zip/.deb, or a direct .zip/.deb URL containing one or more IconBundles folders.\n\nOnly PNG files inside IconBundles are imported. Bundle-ID names work best, for example com.apple.mobilesafari.png or com.apple.MobileSMS-large@3x.png. Lite also maps common SnowBoard aliases such as Alipay, Taobao, Amap, AppStore, Settings, Messages, and Safari.\n\nNot supported in Lite: masks, overlays, Bundles resources, badges, dock/folder assets, UIImages, alternate icon hooks, ZIP64/encrypted ZIP, or data.tar.zst."
                   preferredStyle:UIAlertControllerStyleAlert];
-    [guide addAction:[UIAlertAction actionWithTitle:@"OK"
+    [guide addAction:[UIAlertAction actionWithTitle:@"好"
                                               style:UIAlertActionStyleDefault
                                             handler:nil]];
     [self presentViewController:guide animated:YES completion:nil];
@@ -11379,7 +11380,7 @@ static NSString * const kTelegramLogoSVG =
         alertControllerWithTitle:@"Remove Theme?"
                          message:[NSString stringWithFormat:@"Remove \"%@\" from the SnowBoard Lite library?", title.length ? title : @"Imported Theme"]
                   preferredStyle:UIAlertControllerStyleAlert];
-    [alert addAction:[UIAlertAction actionWithTitle:@"Cancel"
+    [alert addAction:[UIAlertAction actionWithTitle:@"取消"
                                               style:UIAlertActionStyleCancel
                                             handler:nil]];
     [alert addAction:[UIAlertAction actionWithTitle:@"Remove"
@@ -11437,7 +11438,7 @@ static NSString * const kTelegramLogoSVG =
         field.clearButtonMode = UITextFieldViewModeWhileEditing;
         field.autocapitalizationType = UITextAutocapitalizationTypeWords;
     }];
-    [alert addAction:[UIAlertAction actionWithTitle:@"Cancel"
+    [alert addAction:[UIAlertAction actionWithTitle:@"取消"
                                               style:UIAlertActionStyleCancel
                                             handler:nil]];
     [alert addAction:[UIAlertAction actionWithTitle:@"Rename"
@@ -11483,7 +11484,7 @@ static NSString * const kTelegramLogoSVG =
         alertControllerWithTitle:title
                          message:[lines componentsJoinedByString:@"\n"]
                   preferredStyle:UIAlertControllerStyleAlert];
-    [alert addAction:[UIAlertAction actionWithTitle:@"OK"
+    [alert addAction:[UIAlertAction actionWithTitle:@"好"
                                               style:UIAlertActionStyleDefault
                                             handler:nil]];
     [self presentViewController:alert animated:YES completion:nil];
@@ -11538,7 +11539,7 @@ static NSString * const kTelegramLogoSVG =
             [self presentSnowBoardLiteRenamePromptForThemeID:themeID title:title];
         }];
 
-        UIAction *remove = [UIAction actionWithTitle:@"Delete"
+        UIAction *remove = [UIAction actionWithTitle:@"删除"
                                                image:[UIImage systemImageNamed:@"trash"]
                                           identifier:nil
                                              handler:^(__kindof UIAction *action) {
@@ -11667,7 +11668,7 @@ static NSString * const kTelegramLogoSVG =
             [self removeSnowBoardLiteThemeID:themeID];
         }]];
     }
-    [sheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+    [sheet addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil]];
     sheet.popoverPresentationController.sourceView = self.tableView;
     sheet.popoverPresentationController.sourceRect = self.tableView.bounds;
     [self presentViewController:sheet animated:YES completion:nil];
@@ -11791,7 +11792,7 @@ static NSString * const kTelegramLogoSVG =
         textField.autocorrectionType = UITextAutocorrectionTypeNo;
         textField.clearButtonMode = UITextFieldViewModeWhileEditing;
     }];
-    [ac addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+    [ac addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil]];
     [ac addAction:[UIAlertAction actionWithTitle:@"Download"
                                            style:UIAlertActionStyleDefault
                                          handler:^(__unused UIAlertAction *action) {
@@ -11914,7 +11915,7 @@ static NSString * const kTelegramLogoSVG =
         UIAlertController *err = [UIAlertController alertControllerWithTitle:@"Invalid URL"
                                                                      message:@"Enter a valid http or https video URL."
                                                               preferredStyle:UIAlertControllerStyleAlert];
-        [err addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]];
+        [err addAction:[UIAlertAction actionWithTitle:@"好" style:UIAlertActionStyleDefault handler:nil]];
         [self presentViewController:err animated:YES completion:nil];
         return;
     }
@@ -11972,7 +11973,7 @@ static NSString * const kTelegramLogoSVG =
         UIAlertController *err = [UIAlertController alertControllerWithTitle:@"Download Already Running"
                                                                      message:@"Cancel the current LiveWP download before starting another one."
                                                               preferredStyle:UIAlertControllerStyleAlert];
-        [err addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]];
+        [err addAction:[UIAlertAction actionWithTitle:@"好" style:UIAlertActionStyleDefault handler:nil]];
         [[self livewpPresentationHost] presentViewController:err animated:YES completion:nil];
         return;
     }
@@ -12094,7 +12095,7 @@ static NSString * const kTelegramLogoSVG =
         UIAlertController *err = [UIAlertController alertControllerWithTitle:title
                                                                      message:message
                                                               preferredStyle:UIAlertControllerStyleAlert];
-        [err addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]];
+        [err addAction:[UIAlertAction actionWithTitle:@"好" style:UIAlertActionStyleDefault handler:nil]];
         [[self livewpPresentationHost] presentViewController:err animated:YES completion:nil];
     }];
 }
@@ -12137,7 +12138,7 @@ static NSString * const kTelegramLogoSVG =
         textField.autocorrectionType = UITextAutocorrectionTypeNo;
         textField.clearButtonMode = UITextFieldViewModeWhileEditing;
     }];
-    [ac addAction:[UIAlertAction actionWithTitle:@"Cancel"
+    [ac addAction:[UIAlertAction actionWithTitle:@"取消"
                                            style:UIAlertActionStyleCancel
                                          handler:nil]];
     [ac addAction:[UIAlertAction actionWithTitle:@"Download"
@@ -12165,7 +12166,7 @@ static NSString * const kTelegramLogoSVG =
         UIAlertController *err = [UIAlertController alertControllerWithTitle:@"Invalid URL"
                                                                      message:@"Enter a valid http or https theme archive URL."
                                                               preferredStyle:UIAlertControllerStyleAlert];
-        [err addAction:[UIAlertAction actionWithTitle:@"OK"
+        [err addAction:[UIAlertAction actionWithTitle:@"好"
                                                 style:UIAlertActionStyleDefault
                                               handler:nil]];
         [self presentViewController:err animated:YES completion:nil];
@@ -12216,7 +12217,7 @@ static NSString * const kTelegramLogoSVG =
         UIAlertController *err = [UIAlertController alertControllerWithTitle:@"Download Already Running"
                                                                      message:@"Cancel the current SnowBoard Lite download before starting another one."
                                                               preferredStyle:UIAlertControllerStyleAlert];
-        [err addAction:[UIAlertAction actionWithTitle:@"OK"
+        [err addAction:[UIAlertAction actionWithTitle:@"好"
                                                 style:UIAlertActionStyleDefault
                                               handler:nil]];
         [[self livewpPresentationHost] presentViewController:err animated:YES completion:nil];
@@ -12392,7 +12393,7 @@ static NSString * const kTelegramLogoSVG =
         UIAlertController *err = [UIAlertController alertControllerWithTitle:title
                                                                      message:message
                                                               preferredStyle:UIAlertControllerStyleAlert];
-        [err addAction:[UIAlertAction actionWithTitle:@"OK"
+        [err addAction:[UIAlertAction actionWithTitle:@"好"
                                                 style:UIAlertActionStyleDefault
                                               handler:nil]];
         [[self livewpPresentationHost] presentViewController:err animated:YES completion:nil];
@@ -12430,7 +12431,7 @@ static NSString * const kTelegramLogoSVG =
         UIAlertController *ok = [UIAlertController alertControllerWithTitle:@"Theme Imported"
                                                                      message:msg
                                                               preferredStyle:UIAlertControllerStyleAlert];
-        [ok addAction:[UIAlertAction actionWithTitle:@"OK"
+        [ok addAction:[UIAlertAction actionWithTitle:@"好"
                                                style:UIAlertActionStyleDefault
                                              handler:^(__unused UIAlertAction *action) {
             [self refreshSnowBoardLiteOnlineDownloadsPopup];
@@ -12753,7 +12754,7 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls
             UIAlertController *ac = [UIAlertController alertControllerWithTitle:@"Video Import Failed"
                                                                          message:msg
                                                                   preferredStyle:UIAlertControllerStyleAlert];
-            [ac addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]];
+            [ac addAction:[UIAlertAction actionWithTitle:@"好" style:UIAlertActionStyleDefault handler:nil]];
             [self presentViewController:ac animated:YES completion:nil];
             return;
         }
@@ -12857,7 +12858,7 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls
                             UIAlertController *ac = [UIAlertController alertControllerWithTitle:@"Import Failed"
                                                                                          message:msg
                                                                                   preferredStyle:UIAlertControllerStyleAlert];
-                            [ac addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]];
+                            [ac addAction:[UIAlertAction actionWithTitle:@"好" style:UIAlertActionStyleDefault handler:nil]];
                             [self presentViewController:ac animated:YES completion:nil];
                             return;
                         }
@@ -12879,7 +12880,7 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls
                                                       skippedCount,
                                                       duplicateCount]
                                       preferredStyle:UIAlertControllerStyleAlert];
-                        [ac addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]];
+                        [ac addAction:[UIAlertAction actionWithTitle:@"好" style:UIAlertActionStyleDefault handler:nil]];
                         [self presentViewController:ac animated:YES completion:nil];
                     }];
                 });
@@ -12901,7 +12902,7 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls
                 UIAlertController *ac = [UIAlertController alertControllerWithTitle:@"Theme Import Failed"
                                                                              message:msg
                                                                       preferredStyle:UIAlertControllerStyleAlert];
-                [ac addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]];
+                [ac addAction:[UIAlertAction actionWithTitle:@"好" style:UIAlertActionStyleDefault handler:nil]];
                 [self presentViewController:ac animated:YES completion:nil];
                 return;
             }
@@ -12911,7 +12912,7 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls
                 alertControllerWithTitle:@"Theme Imported"
                                  message:[NSString stringWithFormat:@"\"%@\" is now selected. Toggle Cyanide Themer on and tap Run to apply.", name]
                           preferredStyle:UIAlertControllerStyleAlert];
-            [ac addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]];
+            [ac addAction:[UIAlertAction actionWithTitle:@"好" style:UIAlertActionStyleDefault handler:nil]];
             [self presentViewController:ac animated:YES completion:nil];
         });
     });
@@ -12970,11 +12971,11 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls
     cell.imageView.image = [SettingsViewController appIconPreviewForStyle:style];
 
     if (row == 0) {
-        cell.textLabel.text = @"Modern";
-        cell.detailTextLabel.text = @"Default — refreshed v2 mark.";
+        cell.textLabel.text = @"现代";
+        cell.detailTextLabel.text = @"默认 — 新版 v2 图标。";
     } else {
-        cell.textLabel.text = @"Classic";
-        cell.detailTextLabel.text = @"Original release artwork.";
+        cell.textLabel.text = @"经典";
+        cell.detailTextLabel.text = @"初版发布图标。";
     }
 
     BOOL selected = [[self currentAppIconStyle] isEqualToString:style];
@@ -12989,10 +12990,10 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls
 
     if (![UIApplication sharedApplication].supportsAlternateIcons) {
         UIAlertController *ac = [UIAlertController
-            alertControllerWithTitle:@"Can't Change Icon"
-                             message:@"This iOS build doesn't expose alternate icon switching."
+            alertControllerWithTitle:@"无法更换图标"
+                             message:@"当前 iOS 不支持切换备用图标。"
                       preferredStyle:UIAlertControllerStyleAlert];
-        [ac addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleCancel handler:nil]];
+        [ac addAction:[UIAlertAction actionWithTitle:@"好" style:UIAlertActionStyleCancel handler:nil]];
         [self presentViewController:ac animated:YES completion:nil];
         return;
     }
@@ -13058,7 +13059,7 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls
                                                                    size:29.0];
 
     NSMutableAttributedString *title = [[NSMutableAttributedString alloc]
-        initWithString:@"Experimental Tweaks  "
+        initWithString:@"实验性插件  "
             attributes:@{ NSFontAttributeName: [UIFont systemFontOfSize:17.0],
                           NSForegroundColorAttributeName: UIColor.labelColor }];
     NSTextAttachment *att = [[NSTextAttachment alloc] init];
@@ -13069,12 +13070,8 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls
     cell.textLabel.attributedText = title;
 
     cell.detailTextLabel.text = on
-        ? @"Active — in-development tweaks unlocked. These probably don't "
-          @"work yet; installing only adds risk, no benefit. Currently "
-          @"gates: Signal Readouts, TypeBanner, App Switcher Grid."
-        : @"In-development only. These tweaks likely don't work yet and "
-          @"may never ship — turning this on only adds risk with no real "
-          @"benefit. Currently gates: Signal Readouts, TypeBanner, App Switcher Grid.";
+        ? @"已开启 — 开发中插件已解锁。这些功能多半还不能用；安装只会增加风险、没有收益。当前包括：信号显示、TypeBanner、多任务网格。"
+        : @"仅供开发测试。这些插件多半不可用，甚至可能永远不会上线——打开只会增加风险。当前包括：信号显示、TypeBanner、多任务网格。";
     cell.detailTextLabel.font = [UIFont systemFontOfSize:13.0];
     cell.detailTextLabel.textColor = on
         ? [UIColor.systemRedColor colorWithAlphaComponent:0.9]
@@ -13105,10 +13102,10 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls
         // the switch and stop here.
         sw.on = NO;
         UIAlertController *ac = [UIAlertController
-            alertControllerWithTitle:@"Enable Experimental Tweaks?"
-                             message:@"These tweaks are in development and most likely don't work yet. Installing them adds risk — SpringBoard crashes, dropped events, layout glitches, heavy battery drain — with no guaranteed benefit in return. Only turn this on if you're a developer actively testing."
+            alertControllerWithTitle:@"开启实验性插件？"
+                             message:@"这些插件仍在开发中，大多尚不可用。安装只会增加风险（SpringBoard 崩溃、事件丢失、布局异常、耗电），没有保证收益。确定要开启吗？"
                       preferredStyle:UIAlertControllerStyleAlert];
-        [ac addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+        [ac addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil]];
         [ac addAction:[UIAlertAction actionWithTitle:@"Enable Anyway"
                                                style:UIAlertActionStyleDestructive
                                              handler:^(UIAlertAction *_) {
@@ -13237,7 +13234,7 @@ static NSURL *settings_write_snapshot_log_file(NSString *text);
         UIAlertController *ac = [UIAlertController alertControllerWithTitle:@"No Log Yet"
                                                                      message:@"Run a chain once, then come back to share the latest diagnostic log."
                                                               preferredStyle:UIAlertControllerStyleAlert];
-        [ac addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]];
+        [ac addAction:[UIAlertAction actionWithTitle:@"好" style:UIAlertActionStyleDefault handler:nil]];
         [self presentViewController:ac animated:YES completion:nil];
         return;
     }
@@ -13258,7 +13255,7 @@ static NSURL *settings_write_snapshot_log_file(NSString *text);
         UIAlertController *ac = [UIAlertController alertControllerWithTitle:@"Share Failed"
                                                                      message:@"Failed to prepare the diagnostic snapshot file."
                                                               preferredStyle:UIAlertControllerStyleAlert];
-        [ac addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]];
+        [ac addAction:[UIAlertAction actionWithTitle:@"好" style:UIAlertActionStyleDefault handler:nil]];
         [self presentViewController:ac animated:YES completion:nil];
         return;
     }
@@ -13428,7 +13425,7 @@ void cyanide_present_contact(UIViewController *host)
         alertControllerWithTitle:@"Mail Not Available"
                          message:@"Set up Mail in iOS Settings to send feedback, or DM @zeroxjf on Twitter. View Log in Settings to copy the latest diagnostic log."
                   preferredStyle:UIAlertControllerStyleAlert];
-    [ac addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]];
+    [ac addAction:[UIAlertAction actionWithTitle:@"好" style:UIAlertActionStyleDefault handler:nil]];
     [host presentViewController:ac animated:YES completion:nil];
 }
 
@@ -14751,19 +14748,19 @@ void cyanide_present_contact(UIViewController *host)
         primary.textAlignment = NSTextAlignmentCenter;
         primary.font = [UIFont systemFontOfSize:17];
         if (indexPath.row == 0) {
-            primary.text = g_settings_cleanup_running ? @" " : @"Clean Up";
+            primary.text = g_settings_cleanup_running ? @" " : @"清理";
             primary.textColor = cleanupEnabled ? UIColor.systemRedColor : UIColor.tertiaryLabelColor;
         } else if (indexPath.row == 1) {
-            primary.text = g_settings_respring_cleanup_running ? @" " : @"Respring";
+            primary.text = g_settings_respring_cleanup_running ? @" " : @"注销桌面";
             primary.textColor = supported ? UIColor.systemOrangeColor : UIColor.tertiaryLabelColor;
         } else if (indexPath.row == 2) {
-            primary.text = @"Reset All Packages";
+            primary.text = @"重置全部插件";
             primary.textColor = anyInstalledOrQueued ? UIColor.systemRedColor : UIColor.tertiaryLabelColor;
         } else if (indexPath.row == 3) {
-            primary.text = @"Check for Updates";
+            primary.text = @"检查更新";
             primary.textColor = self.view.tintColor;
         } else {
-            primary.text = @"Kill Background Apps (in development)";
+            primary.text = @"结束后台应用（开发中）";
             primary.textColor = UIColor.tertiaryLabelColor;
         }
         [cell.contentView addSubview:primary];
@@ -14801,29 +14798,29 @@ void cyanide_present_contact(UIViewController *host)
         UIColor *detailColor = UIColor.secondaryLabelColor;
         if (indexPath.row == 0) {
             if (g_settings_cleanup_running) {
-                detailText = @"Cleaning up…";
+                detailText = @"正在清理…";
                 detailColor = UIColor.secondaryLabelColor;
             } else {
                 detailText = cleanupEnabled
-                    ? @"Stops live SpringBoard sessions, parks the KRW socket state, and closes this app's local KRW fds. Next run tries launchd recovery first."
-                    : @"No local KRW session.";
+                    ? @"停止 SpringBoard 会话、挂起 KRW 套接字并关闭本应用本地 KRW。下次启动会优先尝试 launchd 恢复。"
+                    : @"当前没有本地 KRW 会话。";
                 detailColor = cleanupEnabled ? UIColor.secondaryLabelColor : UIColor.tertiaryLabelColor;
             }
         } else if (indexPath.row == 1) {
             detailText = g_settings_respring_cleanup_running
-                ? @"Cleaning up…"
-                : @"Clean up is auto run prior to respring to ensure a clean state.";
+                ? @"正在清理…"
+                : @"注销前会自动清理，确保状态干净。";
             detailColor = supported ? UIColor.secondaryLabelColor : UIColor.tertiaryLabelColor;
         } else if (indexPath.row == 2) {
             detailText = anyInstalledOrQueued
-                ? @"Uninstall every package and clear the pending queue. SpringBoard patches already applied this session stay until respring/reboot."
-                : @"Nothing installed or queued.";
+                ? @"卸载全部插件并清空待应用队列。本会话已生效的 SpringBoard 补丁需注销/重启后才会消失。"
+                : @"当前没有已安装或排队的插件。";
             detailColor = anyInstalledOrQueued ? UIColor.secondaryLabelColor : UIColor.tertiaryLabelColor;
         } else if (indexPath.row == 3) {
-            detailText  = @"Pings GitHub for the latest release. Run this if the launch prompt didn't appear.";
+            detailText  = @"向 GitHub 查询最新版本。若启动时未弹出更新提示可点这里。";
             detailColor = UIColor.secondaryLabelColor;
         } else if (indexPath.row == 4) {
-            detailText  = @"In development — still over-kills background services. Disabled until the filter is right.";
+            detailText  = @"开发中 — 目前会误杀后台服务，过滤完善前禁用。";
             detailColor = UIColor.tertiaryLabelColor;
         }
         if (detailText) {
@@ -15889,7 +15886,7 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath
         field.clearButtonMode = UITextFieldViewModeWhileEditing;
         field.autocapitalizationType = UITextAutocapitalizationTypeNone;
     }];
-    [alert addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+    [alert addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil]];
     __weak typeof(self) weakSelf = self;
     [alert addAction:[UIAlertAction actionWithTitle:@"Save" style:UIAlertActionStyleDefault handler:^(UIAlertAction *_) {
         NSString *value = alert.textFields.firstObject.text ?: @"";
@@ -15986,7 +15983,7 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath
     [sheet addAction:[UIAlertAction actionWithTitle:@"中文" style:UIAlertActionStyleDefault handler:^(UIAlertAction *_) {
         [self nicebarSetWeatherLanguage:@"zh" forSlot:slot];
     }]];
-    [sheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+    [sheet addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil]];
     UIView *anchor = self.tableView;
     sheet.popoverPresentationController.sourceView = anchor;
     sheet.popoverPresentationController.sourceRect = anchor.bounds;
@@ -16151,7 +16148,7 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath
     UIAlertController *ac = [UIAlertController alertControllerWithTitle:@"Invalid Coordinates"
                                                                 message:@"Use decimal degrees. Latitude must be between -90 and 90. Longitude must be between -180 and 180. Chinese labels like 北纬/南纬/东经/西经 and full-width punctuation are supported."
                                                          preferredStyle:UIAlertControllerStyleAlert];
-    [ac addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]];
+    [ac addAction:[UIAlertAction actionWithTitle:@"好" style:UIAlertActionStyleDefault handler:nil]];
     settings_present_controller(ac, self);
 }
 
@@ -16197,7 +16194,7 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath
         }
     };
 
-    [ac addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+    [ac addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil]];
     [ac addAction:[UIAlertAction actionWithTitle:@"Set Target"
                                            style:UIAlertActionStyleDefault
                                          handler:^(__unused UIAlertAction *action) {
@@ -16243,7 +16240,7 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath
             [strongSelf runLocationSimApply:YES];
         }]];
     }
-    [ac addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+    [ac addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil]];
     ac.popoverPresentationController.sourceView = self.view;
     ac.popoverPresentationController.sourceRect = self.view.bounds;
     settings_present_controller(ac, self);
@@ -16298,7 +16295,7 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath
     [sheet addAction:[UIAlertAction actionWithTitle:@"Weather" style:UIAlertActionStyleDefault handler:^(UIAlertAction *_) {
         [self presentNiceBarWeatherLanguagePickerForSlot:slot];
     }]];
-    [sheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+    [sheet addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil]];
     sheet.popoverPresentationController.sourceView = sender;
     sheet.popoverPresentationController.sourceRect = sender.bounds;
     [self presentViewController:sheet animated:YES completion:nil];
@@ -16382,10 +16379,10 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath
                 alertControllerWithTitle:@"Clean Up?"
                                  message:@"This is a terminal cleanup for the current app-side KRW session. It stops live SpringBoard tweak sessions, parks the KRW socket state, closes Cyanide's local KRW file descriptors, and clears the in-app exploit cache. The next Run will try launchd KRW recovery first; if that is unavailable, it will run the full chain again."
                           preferredStyle:UIAlertControllerStyleAlert];
-            [ac addAction:[UIAlertAction actionWithTitle:@"Cancel"
+            [ac addAction:[UIAlertAction actionWithTitle:@"取消"
                                                    style:UIAlertActionStyleCancel
                                                  handler:nil]];
-            [ac addAction:[UIAlertAction actionWithTitle:@"Clean Up"
+            [ac addAction:[UIAlertAction actionWithTitle:@"清理"
                                                    style:UIAlertActionStyleDestructive
                                                  handler:^(UIAlertAction *_) {
                 settings_queue_terminal_kexploit_cleanup("manual action");
@@ -16396,7 +16393,7 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath
                 alertControllerWithTitle:@"Respring?"
                                  message:@"Are you sure you want to respring? SpringBoard will restart."
                           preferredStyle:UIAlertControllerStyleAlert];
-            [ac addAction:[UIAlertAction actionWithTitle:@"Cancel"
+            [ac addAction:[UIAlertAction actionWithTitle:@"取消"
                                                    style:UIAlertActionStyleCancel
                                                  handler:nil]];
             __weak typeof(self) weakSelf = self;
@@ -16432,10 +16429,10 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath
                 alertControllerWithTitle:@"Reset All Packages?"
                                  message:@"This uninstalls every package and clears the pending queue. The next chain run will start fresh from a clean slate. SpringBoard patches already live in this session stay until you respring or reboot.\n\nThis does not touch your Run options, Powercuff level, SBCustomizer grid, or other per-tweak settings — only install state."
                           preferredStyle:UIAlertControllerStyleAlert];
-            [ac addAction:[UIAlertAction actionWithTitle:@"Cancel"
+            [ac addAction:[UIAlertAction actionWithTitle:@"取消"
                                                    style:UIAlertActionStyleCancel
                                                  handler:nil]];
-            [ac addAction:[UIAlertAction actionWithTitle:@"Reset"
+            [ac addAction:[UIAlertAction actionWithTitle:@"重置"
                                                    style:UIAlertActionStyleDestructive
                                                  handler:^(UIAlertAction *_) {
                 NSUInteger uninstalled = 0;
@@ -16460,10 +16457,10 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath
                 return;
             }
             UIAlertController *ac = [UIAlertController
-                alertControllerWithTitle:@"Kill Background Apps?"
+                alertControllerWithTitle:@"结束后台应用？"
                                  message:@"This asks SpringBoard to terminate every running app except Cyanide, like swiping them all out of the App Switcher.\n\nApps with unsaved work may lose it. SpringBoard and the lock-screen process are skipped."
                           preferredStyle:UIAlertControllerStyleAlert];
-            [ac addAction:[UIAlertAction actionWithTitle:@"Cancel"
+            [ac addAction:[UIAlertAction actionWithTitle:@"取消"
                                                    style:UIAlertActionStyleCancel
                                                  handler:nil]];
             [ac addAction:[UIAlertAction actionWithTitle:@"Kill Apps"
@@ -16535,7 +16532,7 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath
                 alertControllerWithTitle:@"Apply Pairing Override?"
                                  message:@"Saves these watchOS pairing settings on this iPhone. Respring or reboot afterwards before trying to pair."
                           preferredStyle:UIAlertControllerStyleAlert];
-            [ac addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+            [ac addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil]];
             [ac addAction:[UIAlertAction actionWithTitle:@"Apply" style:UIAlertActionStyleDefault handler:^(UIAlertAction *_) {
                 settings_run_nano_apply_action();
             }]];
@@ -16549,7 +16546,7 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath
                 alertControllerWithTitle:@"Seed Compatibility Index?"
                                  message:@"Adds this phone's product type to the local NanoRegistry compatibility-index MobileAsset and saves a .cyanide.bak backup beside the original file."
                           preferredStyle:UIAlertControllerStyleAlert];
-            [ac addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+            [ac addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil]];
             [ac addAction:[UIAlertAction actionWithTitle:@"Seed" style:UIAlertActionStyleDefault handler:^(UIAlertAction *_) {
                 settings_run_nano_seed_action();
             }]];
@@ -16559,7 +16556,7 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath
                 alertControllerWithTitle:@"Remove Pairing Override?"
                                  message:@"Removes the saved Watch Pairing Override without touching the rest of your watch data. Respring or reboot afterwards."
                           preferredStyle:UIAlertControllerStyleAlert];
-            [ac addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+            [ac addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil]];
             [ac addAction:[UIAlertAction actionWithTitle:@"Remove" style:UIAlertActionStyleDestructive handler:^(UIAlertAction *_) {
                 settings_run_nano_clear_action();
             }]];

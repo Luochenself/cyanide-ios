@@ -27,7 +27,7 @@ static const CGFloat kMargin = 20.0;
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    self.title = @"Home";
+    self.title = @"首页";
     self.view.backgroundColor = UIColor.systemGroupedBackgroundColor;
     self.navigationItem.largeTitleDisplayMode = UINavigationItemLargeTitleDisplayModeAlways;
     self.navigationController.navigationBar.prefersLargeTitles = YES;
@@ -102,7 +102,7 @@ static const CGFloat kMargin = 20.0;
 
     UILabel *tagline = [[UILabel alloc] init];
     tagline.translatesAutoresizingMaskIntoConstraints = NO;
-    tagline.text = @"SpringBoard tweaks for stock iOS";
+    tagline.text = @"面向原版 iOS 的 SpringBoard 插件";
     tagline.font = [UIFont systemFontOfSize:17.0 weight:UIFontWeightBold];
     tagline.textColor = UIColor.labelColor;
     tagline.textAlignment = NSTextAlignmentCenter;
@@ -110,7 +110,7 @@ static const CGFloat kMargin = 20.0;
 
     UILabel *sub = [[UILabel alloc] init];
     sub.translatesAutoresizingMaskIntoConstraints = NO;
-    sub.text = [NSString stringWithFormat:@"No jailbreak required · v%@", ver];
+    sub.text = [NSString stringWithFormat:@"无需越狱 — v%@", ver];
     sub.font = [UIFont systemFontOfSize:13.0 weight:UIFontWeightMedium];
     sub.textColor = UIColor.secondaryLabelColor;
     sub.textAlignment = NSTextAlignmentCenter;
@@ -152,11 +152,11 @@ static const CGFloat kMargin = 20.0;
     row.spacing = 12.0;
     row.distribution = UIStackViewDistributionFillEqually;
 
-    [row addArrangedSubview:[self actionCard:@"Packages"
+    [row addArrangedSubview:[self actionCard:@"插件包"
                                        icon:@"shippingbox.fill"
                                       color:UIColor.systemBlueColor
                                         sel:@selector(openPackagesTab)]];
-    [row addArrangedSubview:[self actionCard:@"Sources"
+    [row addArrangedSubview:[self actionCard:@"源"
                                        icon:@"tray.and.arrow.down.fill"
                                       color:UIColor.systemGreenColor
                                         sel:@selector(openSourcesTab)]];
@@ -239,14 +239,14 @@ static const CGFloat kMargin = 20.0;
     UIView *card = [self card];
     UIStackView *s = [self vstackInCard:card spacing:14.0];
 
-    UILabel *header = [self sectionHeader:@"What's New"];
+    UILabel *header = [self sectionHeader:@"更新内容"];
     [s addArrangedSubview:header];
 
-    [s addArrangedSubview:[self compactRow:@"JavaScript tweak support by @MinePlayer16"
+    [s addArrangedSubview:[self compactRow:@"JavaScript 插件支持 by @MinePlayer16"
                                      icon:@"bolt.fill" color:UIColor.systemOrangeColor]];
-    [s addArrangedSubview:[self compactRow:@"Source repos with browsable tweak catalogs"
+    [s addArrangedSubview:[self compactRow:@"可浏览插件目录的软件源"
                                      icon:@"tray.and.arrow.down.fill" color:UIColor.systemGreenColor]];
-    [s addArrangedSubview:[self compactRow:@"SnowBoard Lite and SpringBoard stability fixes"
+    [s addArrangedSubview:[self compactRow:@"SnowBoard Lite 与 SpringBoard 稳定性修复"
                                      icon:@"wrench.and.screwdriver.fill" color:UIColor.systemBlueColor]];
 
     return card;
@@ -259,15 +259,15 @@ static const CGFloat kMargin = 20.0;
     UIView *card = [self card];
     UIStackView *s = [self vstackInCard:card spacing:12.0];
 
-    [s addArrangedSubview:[self sectionHeader:@"Get Started"]];
+    [s addArrangedSubview:[self sectionHeader:@"开始使用"]];
 
-    [s addArrangedSubview:[self bigActionButton:@"Open QuickLoader"
-                                          sub:@"Run a local .js tweak file"
+    [s addArrangedSubview:[self bigActionButton:@"打开 QuickLoader"
+                                          sub:@"运行本地 .js 插件文件"
                                          icon:@"bolt.fill"
                                         color:UIColor.systemOrangeColor
                                           sel:@selector(openQuickLoader)]];
-    [s addArrangedSubview:[self bigActionButton:@"Add a Source"
-                                          sub:@"Browse and install JS tweaks from repos"
+    [s addArrangedSubview:[self bigActionButton:@"添加源"
+                                          sub:@"浏览并安装仓库中的 JS 插件"
                                          icon:@"plus.circle.fill"
                                         color:UIColor.systemGreenColor
                                           sel:@selector(openSourcesTab)]];
@@ -358,7 +358,7 @@ static const CGFloat kMargin = 20.0;
     UIView *card = [self card];
     UIStackView *s = [self vstackInCard:card spacing:0.0];
 
-    UILabel *header = [self sectionHeader:@"Community"];
+    UILabel *header = [self sectionHeader:@"社区"];
     UIView *headerWrap = [[UIView alloc] init];
     header.translatesAutoresizingMaskIntoConstraints = NO;
     [headerWrap addSubview:header];
@@ -370,9 +370,9 @@ static const CGFloat kMargin = 20.0;
     ]];
     [s addArrangedSubview:headerWrap];
 
-    [s addArrangedSubview:[self linkCell:@"Signal Group" icon:@"bubble.left.and.bubble.right.fill"
+    [s addArrangedSubview:[self linkCell:@"Signal 群组" icon:@"bubble.left.and.bubble.right.fill"
                                   color:UIColor.systemBlueColor url:kSignalGroupURL sep:YES]];
-    [s addArrangedSubview:[self linkCell:@"Report a Bug" icon:@"exclamationmark.bubble.fill"
+    [s addArrangedSubview:[self linkCell:@"反馈问题" icon:@"exclamationmark.bubble.fill"
                                   color:UIColor.systemRedColor url:kGitHubIssuesURL sep:YES]];
     [s addArrangedSubview:[self linkCell:@"GitHub" icon:@"chevron.left.forwardslash.chevron.right"
                                   color:UIColor.systemGrayColor url:kGitHubRepoURL sep:YES]];
@@ -547,7 +547,7 @@ static const CGFloat kMargin = 20.0;
     UITabBarController *tab = self.tabBarController;
     if (!tab) return;
     for (NSUInteger i = 0; i < tab.viewControllers.count; i++) {
-        if ([tab.viewControllers[i].tabBarItem.title isEqualToString:@"Packages"]) {
+        if ([tab.viewControllers[i].tabBarItem.title isEqualToString:@"插件包"]) {
             tab.selectedIndex = i;
             return;
         }
@@ -560,7 +560,7 @@ static const CGFloat kMargin = 20.0;
     if (!tab) return;
     for (NSUInteger i = 0; i < tab.viewControllers.count; i++) {
         UIViewController *vc = tab.viewControllers[i];
-        if ([vc.tabBarItem.title isEqualToString:@"Settings"]) {
+        if ([vc.tabBarItem.title isEqualToString:@"设置"]) {
             UINavigationController *nav = [vc isKindOfClass:UINavigationController.class] ? (UINavigationController *)vc : nil;
             if (!nav) return;
             [nav popToRootViewControllerAnimated:NO];
@@ -578,7 +578,7 @@ static const CGFloat kMargin = 20.0;
     UITabBarController *tab = self.tabBarController;
     if (!tab) return;
     for (NSUInteger i = 0; i < tab.viewControllers.count; i++) {
-        if ([tab.viewControllers[i].tabBarItem.title isEqualToString:@"Sources"]) {
+        if ([tab.viewControllers[i].tabBarItem.title isEqualToString:@"源"]) {
             tab.selectedIndex = i;
             return;
         }

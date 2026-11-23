@@ -41,8 +41,8 @@ static const BOOL kShowInstallerTipsHeader = NO;
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    self.title = @"Packages";
-    self.navigationItem.title = @"Packages";
+    self.title = @"插件包";
+    self.navigationItem.title = @"插件包";
 
     NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
     if (![ud objectForKey:kGroupByCategoryDefault]) {
@@ -761,7 +761,7 @@ static const BOOL kShowInstallerTipsHeader = NO;
     UINavigationController *settingsNav = nil;
     for (NSUInteger i = 0; i < tab.viewControllers.count; i++) {
         UIViewController *vc = tab.viewControllers[i];
-        if ([vc.tabBarItem.title isEqualToString:@"Settings"]) {
+        if ([vc.tabBarItem.title isEqualToString:@"设置"]) {
             settingsIndex = i;
             if ([vc isKindOfClass:UINavigationController.class]) {
                 settingsNav = (UINavigationController *)vc;

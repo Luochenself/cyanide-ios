@@ -334,8 +334,8 @@ static UIColor *category_color(NSString *cat)
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    self.title = @"Sources";
-    self.navigationItem.title = @"Sources";
+    self.title = @"源";
+    self.navigationItem.title = @"源";
     self.navigationItem.largeTitleDisplayMode = UINavigationItemLargeTitleDisplayModeAlways;
     self.navigationController.navigationBar.prefersLargeTitles = YES;
     self.tableView.rowHeight = UITableViewAutomaticDimension;
@@ -378,7 +378,7 @@ static UIColor *category_color(NSString *cat)
     if (!tab) return;
     for (NSUInteger i = 0; i < tab.viewControllers.count; i++) {
         UIViewController *vc = tab.viewControllers[i];
-        if ([vc.tabBarItem.title isEqualToString:@"Settings"]) {
+        if ([vc.tabBarItem.title isEqualToString:@"设置"]) {
             UINavigationController *nav = [vc isKindOfClass:UINavigationController.class] ? (UINavigationController *)vc : nil;
             if (!nav) return;
             [nav popToRootViewControllerAnimated:NO];

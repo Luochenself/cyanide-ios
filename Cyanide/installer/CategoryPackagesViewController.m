@@ -335,7 +335,7 @@ static NSString * const kCatPkgCellID = @"CatPkgCell";
     UINavigationController *settingsNav = nil;
     for (NSUInteger i = 0; i < tab.viewControllers.count; i++) {
         UIViewController *vc = tab.viewControllers[i];
-        if ([vc.tabBarItem.title isEqualToString:@"Settings"]) {
+        if ([vc.tabBarItem.title isEqualToString:@"设置"]) {
             settingsIndex = i;
             if ([vc isKindOfClass:UINavigationController.class]) settingsNav = (UINavigationController *)vc;
             break;

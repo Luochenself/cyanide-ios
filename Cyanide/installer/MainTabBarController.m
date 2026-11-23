@@ -69,25 +69,25 @@ static NSString * const kSourcesLastRefreshKey = @"RepoTweaksLastRefreshTimestam
     if (controllers.count == 0) return;
 
     UIViewController *packages = controllers.firstObject;
-    packages.tabBarItem.title = @"Packages";
+    packages.tabBarItem.title = @"插件包";
     packages.tabBarItem.image = [UIImage systemImageNamed:@"shippingbox.fill"];
     if ([packages isKindOfClass:UINavigationController.class]) {
         UINavigationController *nav = (UINavigationController *)packages;
-        nav.tabBarItem.title = @"Packages";
-        nav.topViewController.title = @"Packages";
-        nav.topViewController.navigationItem.title = @"Packages";
+        nav.tabBarItem.title = @"插件包";
+        nav.topViewController.title = @"插件包";
+        nav.topViewController.navigationItem.title = @"插件包";
     }
 
     // Inject Home tab at position 0 if not already present.
     BOOL hasHome = NO;
     for (UIViewController *vc in controllers) {
-        if ([vc.tabBarItem.title isEqualToString:@"Home"]) { hasHome = YES; break; }
+        if ([vc.tabBarItem.title isEqualToString:@"首页"]) { hasHome = YES; break; }
     }
     if (!hasHome) {
         HomeViewController *home = [[HomeViewController alloc] init];
         UINavigationController *homeNav = [[UINavigationController alloc] initWithRootViewController:home];
         homeNav.navigationBar.barStyle = UIBarStyleBlack;
-        homeNav.tabBarItem = [[UITabBarItem alloc] initWithTitle:@"Home"
+        homeNav.tabBarItem = [[UITabBarItem alloc] initWithTitle:@"首页"
                                                            image:[UIImage systemImageNamed:@"house.fill"]
                                                              tag:0];
         [controllers insertObject:homeNav atIndex:0];
@@ -96,19 +96,19 @@ static NSString * const kSourcesLastRefreshKey = @"RepoTweaksLastRefreshTimestam
     // Inject Sources tab right after Packages if not already present.
     BOOL hasSources = NO;
     for (UIViewController *vc in controllers) {
-        if ([vc.tabBarItem.title isEqualToString:@"Sources"]) { hasSources = YES; break; }
+        if ([vc.tabBarItem.title isEqualToString:@"源"]) { hasSources = YES; break; }
     }
     if (!hasSources) {
         SourcesViewController *sources = [[SourcesViewController alloc] initWithStyle:UITableViewStyleInsetGrouped];
         UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:sources];
         nav.navigationBar.barStyle = UIBarStyleBlack;
-        nav.tabBarItem = [[UITabBarItem alloc] initWithTitle:@"Sources"
+        nav.tabBarItem = [[UITabBarItem alloc] initWithTitle:@"源"
                                                        image:[UIImage systemImageNamed:@"tray.and.arrow.down.fill"]
                                                          tag:0];
         // Find Packages and insert Sources right after it.
         NSUInteger pkgIdx = 0;
         for (NSUInteger i = 0; i < controllers.count; i++) {
-            if ([controllers[i].tabBarItem.title isEqualToString:@"Packages"]) { pkgIdx = i; break; }
+            if ([controllers[i].tabBarItem.title isEqualToString:@"插件包"]) { pkgIdx = i; break; }
         }
         NSUInteger insertIndex = MIN(pkgIdx + 1, controllers.count);
         [controllers insertObject:nav atIndex:insertIndex];
@@ -331,7 +331,7 @@ static NSString * const kSourcesLastRefreshKey = @"RepoTweaksLastRefreshTimestam
     NSUInteger count = repotweaks_available_update_count();
     NSString *badge = count > 0 ? [NSString stringWithFormat:@"%lu", (unsigned long)count] : nil;
     for (UIViewController *vc in self.viewControllers) {
-        if ([vc.tabBarItem.title isEqualToString:@"Packages"]) {
+        if ([vc.tabBarItem.title isEqualToString:@"插件包"]) {
             vc.tabBarItem.badgeValue = badge;
             break;
         }
