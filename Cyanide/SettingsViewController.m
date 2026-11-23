@@ -7,6 +7,7 @@
 #import "kexploit/kexploit_opa334.h"
 #import "tweaks/sbcustomizer.h"
 #import "tweaks/powercuff.h"
+#import "tweaks/lpm_unlock.h"
 #import "tweaks/statbar.h"
 #import <objc/runtime.h>
 #import "tweaks/nsbar.h"
@@ -6899,6 +6900,13 @@ static void settings_run_actions_internal(BOOL pendingOnly)
                              ok ? "[OK]" : "[WARN]",
                              ok ? "applied" : "did not apply cleanly");
                     cyanide_upload_log_milestone(ok ? @"powercuff-applied" : @"powercuff-failed");
+                    if ([d boolForKey:@"LPMUnlockEnabled"]) {
+                        settings_progress(&step, total, "Applying LPM Unlock via backboardd");
+                        bool lok = lpm_unlock_apply(120);
+                        log_user("%s LPM Unlock (max 120Hz under Low Power Mode probe).\n",
+                                 lok ? "[OK]" : "[FAIL]");
+                        cyanide_upload_log_milestone(lok ? @"lpm-unlock-applied" : @"lpm-unlock-failed");
+                    }
                 }
             }
 

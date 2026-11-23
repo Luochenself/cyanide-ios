@@ -1,0 +1,74 @@
+name: Build IPA
+
+# Manual / push build — does NOT publish a release.
+# Artifact: cyanidex-lpm.ipa (unsigned; sign locally with Sideloadly / 全能签)
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - lpm-unlock
+      - d1y
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Build IPA
+        env:
+          RELEASE_BUILD_ONLY: "1"
+          VERSION: "lpm.0.1"
+        run: |
+          set -euo pipefail
+          chmod +x ./scripts/release.sh || true
+          if [ -x ./scripts/release.sh ]; then
+            VERSION="${VERSION}" RELEASE_BUILD_ONLY=1 ./scripts/release.sh || true
+          fi
+          # Fallback: direct xcodebuild if release script expects a clean git tree
+          if [ ! -f build/Cyanide.ipa ] && [ ! -f build/cyanidex.ipa ]; then
+            xcodebuild \
+              -project Cyanide.xcodeproj \
+              -scheme Cyanide \
+              -configuration Release \
+              -sdk iphoneos \
+              -derivedDataPath build/DerivedData \
+              CODE_SIGNING_ALLOWED=NO \
+              CODE_SIGNING_REQUIRED=NO \
+              CODE_SIGN_IDENTITY="" \
+              build
+            APP=$(find build/DerivedData/Build/Products -name 'Cyanide.app' | head -n1)
+            test -n "$APP"
+            rm -rf Payload
+            mkdir Payload
+            cp -R "$APP" Payload/
+            zip -r9 build/cyanidex-lpm.ipa Payload
+          else
+            mkdir -p build
+            cp -f build/Cyanide.ipa build/cyanidex-lpm.ipa 2>/dev/null || cp -f build/cyanidex.ipa build/cyanidex-lpm.ipa
+          fi
+          ls -lh build/*.ipa
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cyanidex-lpm
+          path: |
+            build/cyanidex-lpm.ipa
+            build/Cyanide.ipa
+            build/cyanidex.ipa
+          if-no-files-found: error
+          retention-days: 14
